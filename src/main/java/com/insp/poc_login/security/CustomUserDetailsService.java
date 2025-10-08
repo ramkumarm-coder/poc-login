@@ -1,6 +1,7 @@
 package com.insp.poc_login.security;
 
 import com.insp.poc_login.entity.UserLogin;
+import com.insp.poc_login.exception.InvalidUserException;
 import com.insp.poc_login.repository.UserLoginRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,8 +18,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserLogin user = userRepository.findById(username).orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-
+        UserLogin user = userRepository.findById(username).orElseThrow(() -> new InvalidUserException("User not found: " + username));
+        if (!user.isEnabled()) {
+            throw new InvalidUserException("User registration not yet completed: " + username);
+        }
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
 //        List<GrantedAuthority> authorities = user.getRoles().stream()
 //                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))

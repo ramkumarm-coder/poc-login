@@ -31,10 +31,10 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
 
 
         UserDetails user = new AppUser(userLogin);
-//        Collection<GrantedAuthority> authorities = user.getRoles().stream()
-//                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-//                .collect(Collectors.toList());
+        Collection<GrantedAuthority> authorities = user.getAuthorities().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getAuthority()))
+                .collect(Collectors.toList());
 
-        return new UsernamePasswordAuthenticationToken(user, jwt, null);
+        return new UsernamePasswordAuthenticationToken(user, jwt, authorities);
     }
 }

@@ -1,0 +1,3 @@
+INSERT INTO public.login_users(
+	email, enabled, password, name)
+	VALUES ('rk.nic001@gmail.com', true, 'Rk@123', 'Ramkumar M');
