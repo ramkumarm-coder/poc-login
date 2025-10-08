@@ -1,7 +1,8 @@
 package com.insp.poc_login.controller;
 
-import com.insp.poc_login.dto.auth.LoginRequest;
-import com.insp.poc_login.dto.auth.RegisterRequest;
+import com.insp.poc_login.dto.auth.LoginResponse;
+import com.insp.poc_login.dto.auth.request.LoginRequest;
+import com.insp.poc_login.dto.auth.request.RegisterRequest;
 import com.insp.poc_login.entity.UserLogin;
 import com.insp.poc_login.repository.UserLoginRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -21,9 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -47,8 +44,8 @@ public class AuthController {
         return ResponseEntity.ok("User registered");
     }
 
-    @PostMapping("/token")
-    public ResponseEntity<?> token(@RequestBody LoginRequest req) {
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req) {
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword()));
 
@@ -63,6 +60,11 @@ public class AuthController {
 
         String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
-        return ResponseEntity.ok(Map.of("access_token", token, "token_type", "Bearer"));
+        LoginResponse response = LoginResponse.builder()
+                .status("success")
+                .tokenType("Bearer")
+                .token(token)
+                .build();
+        return ResponseEntity.ok(response);
     }
 }
