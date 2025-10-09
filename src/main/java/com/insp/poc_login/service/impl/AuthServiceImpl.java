@@ -21,55 +21,56 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String sendOtp(String email) {
         UserLogin userLogin = userLoginRepository.findById(email).orElseThrow(() -> new InvalidUserException("User not found: " + email));
-        if(!userLogin.isEnabled()){
-           return otpService.generateOtp(email);
+        if (!userLogin.isEnabled()) {
+            return otpService.generateOtp(email);
         }
         throw new RuntimeException("User already registered successfully. Please login");
     }
 
-    public void verifyRegisteredUser(String email, String userOtp){
+    public void verifyRegisteredUser(String email, String userOtp) {
         UserLogin userLogin = userLoginRepository.findById(email).orElseThrow(() -> new InvalidUserException("User not found: " + email));
         boolean isValidOtp = otpService.validateOtp(email, userOtp);
         userLogin.setEnabled(true);
 
-        if(isValidOtp) {
+        if (isValidOtp) {
             userLoginRepository.save(userLogin);
+        } else {
+            throw new RuntimeException("Invalid OTP for User registration");
         }
-        throw new RuntimeException("Invalid OTP for User registration");
     }
 
     public String forgotPasswordOtp(String email) {
         UserLogin userLogin = userLoginRepository.findById(email).orElseThrow(() -> new InvalidUserException("User not found: " + email));
-        if(userLogin.isEnabled()){
+        if (userLogin.isEnabled()) {
             return otpService.generateOtp(email);
         }
         throw new RuntimeException("User not completed registration process!");
     }
 
-    public void forgotPasswordVerify(String email, String userOtp){
+    public void forgotPasswordVerify(String email, String userOtp) {
         UserLogin userLogin = userLoginRepository.findById(email).orElseThrow(() -> new InvalidUserException("User not found: " + email));
         boolean isValidOtp = otpService.validateOtp(email, userOtp);
-        if(!userLogin.isEnabled())
+        if (!userLogin.isEnabled())
             throw new RuntimeException("User not completed registration process!");
 
-        if(isValidOtp) {
+        if (isValidOtp) {
             userLogin.setForgotPwdTimestamp(LocalDateTime.now());
             userLoginRepository.save(userLogin);
-        }
-        throw new RuntimeException("Invalid OTP for forgot password");
+        } else
+            throw new RuntimeException("Invalid OTP for forgot password");
     }
 
-    public void forgotPasswordReset(String email, String password){
+    public void forgotPasswordReset(String email, String password) {
         UserLogin userLogin = userLoginRepository.findById(email).orElseThrow(() -> new InvalidUserException("User not found: " + email));
-        if(!userLogin.isEnabled())
+        if (!userLogin.isEnabled())
             throw new RuntimeException("User not completed registration process!");
 
 
-        if(userLogin.getForgotPwdTimestamp().plusMinutes(5).isBefore(LocalDateTime.now())){
+        if (userLogin.getForgotPwdTimestamp().plusMinutes(5).isBefore(LocalDateTime.now())) {
             userLogin.setPassword(new BCryptPasswordEncoder().encode(password));
             userLogin.setForgotPwdTimestamp(null);
             userLoginRepository.save(userLogin);
-        }
-        throw new RuntimeException("Timeout/Invalid OTP for forgot password");
+        } else
+            throw new RuntimeException("Timeout/Invalid OTP for forgot password");
     }
 }
