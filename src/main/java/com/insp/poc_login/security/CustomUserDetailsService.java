@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (!user.isEnabled()) {
             throw new InvalidUserException("User registration not yet completed: " + username);
         }
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+//        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
 //        List<GrantedAuthority> authorities = user.getRoles().stream()
 //                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
 //                .collect(Collectors.toList());

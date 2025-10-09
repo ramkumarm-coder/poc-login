@@ -70,6 +70,6 @@ public class AuthServiceImpl implements AuthService {
             userLogin.setForgotPwdTimestamp(null);
             userLoginRepository.save(userLogin);
         }
-        throw new RuntimeException("Invalid OTP for forgot password");
+        throw new RuntimeException("Timeout/Invalid OTP for forgot password");
     }
 }

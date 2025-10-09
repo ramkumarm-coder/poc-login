@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UserLogin {
     @Id
-    @Column(unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)

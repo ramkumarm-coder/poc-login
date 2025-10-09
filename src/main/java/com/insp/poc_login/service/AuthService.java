@@ -6,4 +6,6 @@ public interface AuthService {
     String forgotPasswordOtp(String email);
     void forgotPasswordVerify(String email, String userOtp);
 
+    void forgotPasswordReset(String email, String password);
+
 }

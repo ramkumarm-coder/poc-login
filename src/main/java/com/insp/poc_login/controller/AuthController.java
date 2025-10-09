@@ -152,10 +152,10 @@ public class AuthController {
         if(!Objects.equals(req.getPassword(), req.getConfirmPassword()))
             throw new InvalidInputException("Password & confirm password does not match");
 
-//        service.forgotPasswordReset(req.getEmail(), req.getOtp());
+        service.forgotPasswordReset(req.getEmail(), req.getPassword());
         StatusMsgResponse resp = StatusMsgResponse.builder()
                 .status("success")
-                .message("OTP Verified successfully! 5 minutes to reset your password!")
+                .message("Password reset successfully! Please login")
                 .build();
         return ResponseEntity.ok(resp);
     }
