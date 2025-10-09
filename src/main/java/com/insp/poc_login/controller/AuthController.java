@@ -44,7 +44,15 @@ public class AuthController {
     @Operation(summary = "Register user")
     public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest req) {
         if (userRepo.existsById(req.getEmail())) {
-            throw new InvalidUserCreationException();
+            boolean enabled = userRepo.findById(req.getEmail()).get().isEnabled();
+            if(enabled)
+                throw new InvalidUserCreationException();
+            RegisterResponse resp = RegisterResponse.builder()
+                    .email(req.getEmail())
+                    .status("pending")
+                    .message("Registration completed. Pending for verification.")
+                    .build();
+            return ResponseEntity.ok(resp);
         }
 
         if(!Objects.equals(req.getPassword(), req.getConfirmPassword()))
@@ -58,7 +66,7 @@ public class AuthController {
         userRepo.save(u);
         RegisterResponse response = RegisterResponse.builder()
                 .email(req.getEmail())
-                .status("verification pending")
+                .status("pending")
                 .message("Registration completed. Pending for verification.")
                 .build();
         return ResponseEntity.ok(response);
@@ -79,7 +87,20 @@ public class AuthController {
                     )}
             )
     )
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+        if (userRepo.existsById(req.getEmail())) {
+            boolean enabled = userRepo.findById(req.getEmail()).get().isEnabled();
+            if(enabled)
+                throw new InvalidUserCreationException();
+            RegisterResponse resp = RegisterResponse.builder()
+                    .email(req.getEmail())
+                    .status("pending")
+                    .message("Registration completed. Pending for verification.")
+                    .build();
+            return ResponseEntity.ok(resp);
+        }
+
+
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword()));
 
