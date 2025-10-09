@@ -90,14 +90,14 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         if (userRepo.existsById(req.getEmail())) {
             boolean enabled = userRepo.findById(req.getEmail()).get().isEnabled();
-            if(enabled)
-                throw new InvalidUserCreationException();
-            RegisterResponse resp = RegisterResponse.builder()
-                    .email(req.getEmail())
-                    .status("pending")
-                    .message("Registration completed. Pending for verification.")
-                    .build();
-            return ResponseEntity.ok(resp);
+            if(!enabled) {
+                RegisterResponse resp = RegisterResponse.builder()
+                        .email(req.getEmail())
+                        .status("pending")
+                        .message("Registration completed. Pending for verification.")
+                        .build();
+                return ResponseEntity.ok(resp);
+            }
         }
 
 
