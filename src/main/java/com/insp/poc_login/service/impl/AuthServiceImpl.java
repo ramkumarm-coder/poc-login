@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (!userLogin.getForgotPwdTimestamp().plusMinutes(5).isBefore(LocalDateTime.now())) {
-            if(Objects.equals(userLogin.getPassword(), passwordEncoder.encode(password)))
+            if(passwordEncoder.matches(password, userLogin.getPassword()))
                 throw new RuntimeException("Old password should not be same as new password");
             userLogin.setPassword(passwordEncoder.encode(password));
             userLogin.setForgotPwdTimestamp(null);
