@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -61,13 +62,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public void forgotPasswordReset(String email, String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
         UserLogin userLogin = userLoginRepository.findById(email).orElseThrow(() -> new InvalidUserException("User not found: " + email));
         if (!userLogin.isEnabled())
             throw new RuntimeException("User not completed registration process!");
 
+        if(userLogin.getForgotPwdTimestamp() == null){
+            throw new RuntimeException("You don't have access to reset password!");
+        }
 
-        if (userLogin.getForgotPwdTimestamp().plusMinutes(5).isBefore(LocalDateTime.now())) {
-            userLogin.setPassword(new BCryptPasswordEncoder().encode(password));
+        if (!userLogin.getForgotPwdTimestamp().plusMinutes(5).isBefore(LocalDateTime.now())) {
+            if(Objects.equals(userLogin.getPassword(), passwordEncoder.encode(password)))
+                throw new RuntimeException("Old password should not be same as new password");
+            userLogin.setPassword(passwordEncoder.encode(password));
             userLogin.setForgotPwdTimestamp(null);
             userLoginRepository.save(userLogin);
         } else
